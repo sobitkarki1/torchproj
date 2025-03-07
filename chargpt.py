@@ -17,6 +17,8 @@ stoi = {ch: i for i, ch in enumerate(chars)}
 itos = {i: ch for ch, i in stoi.items()}
 vocab_size = len(chars)
 
+print("vocab_size: " + str(vocab_size))
+
 # Encode & Decode functions
 def encode(text):
     return [stoi[ch] for ch in text]
@@ -34,9 +36,9 @@ train_data, val_data = data[:split], data[split:]
 # Define model parameters
 batch_size = 64
 block_size = 128  # Context size for GPT
-embedding_dim = 256
+embedding_dim = 4
 num_heads = 4
-num_layers = 6
+num_layers = 24
 dropout = 0.1
 
 # Define GPT-like Model

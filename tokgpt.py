@@ -4,22 +4,35 @@ import torch.optim as optim
 import torch.nn.functional as F
 import random
 import datetime
-import tiktoken
+import json
 
 
 # Load text data
 with open("text_data.txt", "r", encoding="utf-8") as f:
     text = f.read()
 
-tokenizer = tiktoken.get_encoding("cl100k_base")
-vocab_size = len(tokenizer.encoder)
 
-# Encode & Decode functions
+# --- Tokenizer ---
+
+# Step 1: Load your vocab.json file
+with open('vocab.json', 'r', encoding="utf-8") as f:
+    vocab = json.load(f)
+
+vocab_size = len(vocab)
+
+# Reverse vocab for decoding
+rev_vocab = {v: k for k, v in vocab.items()}
+
+# Step 2: Encode function (text to token IDs)
 def encode(text):
-    return tiktoken.encode(text)
+    tokens = list(text)  # You can use a different tokenizer depending on your use case
+    token_ids = [vocab.get(token, vocab["[UNK]"]) for token in tokens]  # Use [UNK] for unknown tokens
+    return token_ids
 
-def decode(indices):
-    return tiktoken.decode(text)
+# Step 3: Decode function (token IDs to text)
+def decode(token_ids):
+    tokens = [rev_vocab.get(token_id, "[UNK]") for token_id in token_ids]
+    return ''.join(tokens)  # Join tokens to form a string (modify this as needed)
 
 # Convert text to tensor
 data = torch.tensor(encode(text), dtype=torch.long)
@@ -29,15 +42,15 @@ split = int(0.9 * len(data))
 train_data, val_data = data[:split], data[split:]
 
 # Define model parameters
-batch_size = 64
+batch_size = 2
 block_size = 128  # Context size for GPT
-embedding_dim = 256
+embedding_dim = 128
 num_heads = 4
 num_layers = 6
 dropout = 0.0
 
-# Define GPT-like Model
-class CharGPT(nn.Module):
+# Define GPT Model
+class GPT(nn.Module):
     def __init__(self, vocab_size, embedding_dim, num_heads, num_layers, block_size, dropout=0.1):
         super().__init__()
         self.token_embedding = nn.Embedding(vocab_size, embedding_dim)
@@ -99,8 +112,8 @@ def generate_text(start_text, max_length=250):
 
 # Training loop
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-model = CharGPT(vocab_size, embedding_dim, num_heads, num_layers, block_size, dropout).to(device)
-optimizer = optim.AdamW(model.parameters(), lr=0.1)
+model = GPT(vocab_size, embedding_dim, num_heads, num_layers, block_size, dropout).to(device)
+optimizer = optim.AdamW(model.parameters(), lr=0.01)
 
 epochs = 1000
 for epoch in range(epochs):
@@ -121,7 +134,7 @@ for epoch in range(epochs):
 
         # Generate sample text
 
-        generated_text = generate_text("\"")
+        generated_text = generate_text("There was a ")
 
         # Print to console and append to file
         with open('output.txt', 'a', encoding='utf-8') as f:
