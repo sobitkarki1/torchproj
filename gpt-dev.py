@@ -19,7 +19,7 @@ dropout = 0.0
 torch.manual_seed(1337)
 
 # wget https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt
-with open('text_data.txt', 'r', encoding='utf-8') as f:
+with open("/kaggle/input/crime-and-punishment-in-txt/crime and punishment.txt", 'r', encoding='utf-8') as f:
     text = f.read()
 
 # here are all the unique characters that occur in this text
