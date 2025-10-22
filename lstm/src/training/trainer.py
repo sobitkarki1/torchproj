@@ -224,7 +224,9 @@ def main():
     print("=" * 70)
     
     # Configuration
-    PROCESSED_DATA = "data/processed/NABIL_processed.csv"
+    import pathlib
+    script_dir = pathlib.Path(__file__).parent.parent.parent
+    PROCESSED_DATA = str(script_dir / "data" / "processed" / "NABIL_processed.csv")
     SEQUENCE_LENGTH = 30
     PREDICTION_HORIZON = 5
     BATCH_SIZE = 256
